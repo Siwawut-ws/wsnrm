@@ -8,6 +8,7 @@ import 'package:wsnrm/state/main_menu.dart';
 import 'package:wsnrm/utility/my_constant.dart';
 import 'package:wsnrm/utility/my_style.dart';
 import 'package:wsnrm/utility/normal_dialog.dart';
+import 'package:crypto/crypto.dart' as crypto;
 
 class Login extends StatefulWidget {
   @override
@@ -52,7 +53,13 @@ class _LoginState extends State<Login> {
           if (user == null || user.isEmpty) {
             normalDialog(context, 'Please Fill Every Blank');
           } else {
-            checkAuthen();
+            var content = utf8.encode(password);
+            var md5 = crypto.md5;
+
+            String passwordMd5 = md5.convert(content).toString();
+            print('passwordMd5 -----> $passwordMd5');
+            checkAuthen(passwordMd5);
+            // checkAuthen();
           }
         },
         child: Text(
@@ -61,26 +68,48 @@ class _LoginState extends State<Login> {
         ),
       ));
 
-  Future<Null> checkAuthen() async {
+  Future<Null> checkAuthen(String passwordMd5) async {
     String path =
-        '${MyConstant().domain}/ohday/getUserWhereUser.php?isAdd=true&user=$user';
+        'http://183.88.213.12/wsvvpack/wsvvpack.asmx/GETLOGIN?EMPCODE=$user&EMPPASSWORD=$passwordMd5';
 
     await Dio().get(path).then((value) {
-      print('value = $value');
-      if (value.toString() == 'null') {
-        normalDialog(context, 'No $user in my Database');
+      var result = json.decode(value.data);
+      List<Map<String, dynamic>> maps = List();
+      for (var item in result) {
+        maps.add(item);
+      }
+      print('map[0] ---->> ${maps[0]}');
+      if (maps[0]['Status'] == 'Successful...') {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainMenu(),
+            ),
+            (route) => false);
       } else {
-        var result = json.decode(value.data);
-        for (var json in result) {
-          UserModel model = UserModel.fromMap(json);
-          if (password == model.password) {
-            savePrefer(model);
-          } else {
-            normalDialog(context, 'Please Try Again Password False');
-          }
-        }
+        normalDialog(context, maps[0]['Status']);
       }
     });
+
+    // String path =
+    //     '${MyConstant().domain}/ohday/getUserWhereUser.php?isAdd=true&user=$user';
+
+    // await Dio().get(path).then((value) {
+    //   print('value = $value');
+    //   if (value.toString() == 'null') {
+    //     normalDialog(context, 'No $user in my Database');
+    //   } else {
+    //     var result = json.decode(value.data);
+    //     for (var json in result) {
+    //       UserModel model = UserModel.fromMap(json);
+    //       if (password == model.password) {
+    //         savePrefer(model);
+    //       } else {
+    //         normalDialog(context, 'Please Try Again Password False');
+    //       }
+    //     }
+    //   }
+    // });
   }
 
   Future<Null> savePrefer(UserModel model) async {

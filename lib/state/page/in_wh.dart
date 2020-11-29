@@ -87,7 +87,7 @@ class _InWHState extends State<InWH> {
             itemCount: codeReaders.length,
             itemBuilder: (context, index) => Dismissible(
                 onDismissed: (direction) {
-                  setState(() {g
+                  setState(() {
                     codeReaders.removeAt(index);
                     qtys.removeAt(index);
                   });

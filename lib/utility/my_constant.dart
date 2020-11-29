@@ -4,7 +4,7 @@ import 'package:wsnrm/state/storing.dart';
 import 'package:wsnrm/state/supplying.dart';
 
 class MyConstant {
-  String domain = 'https://8dbe381689f1.ngrok.io';
+  String domain = 'https://9ed2619cc439.ngrok.io';
 
   List<String> titleMenus = ['RECIEVING', 'STORING', 'SUPPLYING'];
   List<IconData> iconMenus = [
